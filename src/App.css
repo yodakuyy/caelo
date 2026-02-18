@@ -1,0 +1,1191 @@
+:root {
+    /* Vibrant Mockup Palette based on image */
+    --sunrise-top: #003366;
+    /* Deep Blue */
+    --sunrise-mid: #4A90E2;
+    /* Azure */
+    --sunrise-bottom: #FFD080;
+    /* Golden Horizon */
+
+    --day-top: #A2D2FF;
+    --day-bottom: #F1FAFF;
+
+    --sunset-top: #312244;
+    /* Deep Purple/Violet */
+    --sunset-mid: #FF6B4E;
+    /* Intense Orange */
+    --sunset-bottom: #FF9D6C;
+    /* Warm Peach/Gold */
+
+    --night-top: #1B263B;
+    --night-bottom: #415A77;
+
+    --text-light: #ffffff;
+    --text-dark: #1B263B;
+    /* Deep Navy for Day Mode */
+
+    --glass-white: rgba(255, 255, 255, 0.15);
+    --glass-dark: rgba(27, 38, 59, 0.08);
+    /* Darker glass for Day mode */
+
+    --transition-sky: 4s ease-in-out;
+}
+
+@keyframes skyBreath {
+    0% {
+        background-position: 50% 0%;
+    }
+
+    50% {
+        background-position: 50% 100%;
+    }
+
+    100% {
+        background-position: 50% 0%;
+    }
+}
+
+@keyframes raySpin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes shieldPulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+    }
+
+    70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 20px transparent;
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 transparent;
+    }
+}
+
+@keyframes dayShieldPulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(27, 38, 59, 0.2);
+    }
+
+    70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 20px transparent;
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 transparent;
+    }
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Outfit', sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    color: var(--text-light);
+    background: #000;
+    transition: color 1.5s ease;
+}
+
+/* ADAPTIVE THEMING (Force Light/Dark based on brightness) */
+.mode-day {
+    color: #1a1a1a !important;
+    text-shadow: none !important;
+}
+
+/* Sunrise & Sunset modes use white text with shadows due to dark top colors */
+.mode-sunrise,
+.mode-sunset {
+    color: #ffffff !important;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+}
+
+.mode-day .meta-info,
+.mode-day .sub-label,
+.mode-day .unit-label,
+.mode-day .nav-label,
+.mode-day .sky-quote,
+.mode-day .nav-item,
+.mode-day h2,
+.mode-day h3 {
+    color: #1a1a1a !important;
+    text-shadow: none !important;
+    opacity: 1 !important;
+}
+
+.mode-day .card,
+.mode-sunrise .card,
+.mode-sunset .card,
+.mode-day .btn-glass,
+.mode-sunrise .btn-glass,
+.mode-sunset .btn-glass,
+.mode-day .expedition-card,
+.mode-sunrise .expedition-card,
+.mode-sunset .expedition-card,
+.mode-day .bottom-nav,
+.mode-sunrise .bottom-nav,
+.mode-sunset .bottom-nav {
+    background: rgba(255, 255, 255, 0.6) !important;
+    /* More solid white background */
+    border-color: rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05) !important;
+}
+
+.mode-day .btn-start,
+.mode-sunrise .btn-start,
+.mode-sunset .btn-start {
+    background: rgba(255, 255, 255, 0.5) !important;
+    border-color: rgba(0, 0, 0, 0.2) !important;
+    color: #1a1a1a !important;
+    text-shadow: none !important;
+}
+
+.mode-day .nav-item.active,
+.mode-sunrise .nav-item.active,
+.mode-sunset .nav-item.active {
+    opacity: 1 !important;
+}
+
+.mode-day .nav-icon {
+    filter: brightness(0.2);
+    /* Darken icons for light mode */
+}
+
+/* LAYER 1: Dynamic Sky Gradient with Breathing */
+.sky-layer {
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    /* Larger for animation */
+    z-index: -3;
+    transition: opacity var(--transition-sky);
+    opacity: 0;
+    background-size: 200% 200%;
+    animation: skyBreath 30s ease-in-out infinite;
+}
+
+.sky-layer.active {
+    opacity: 1;
+}
+
+.sunrise {
+    background: linear-gradient(135deg, var(--sunrise-top) 0%, var(--sunrise-mid) 45%, var(--sunrise-bottom) 100%);
+}
+
+.day {
+    background: linear-gradient(135deg, var(--day-top) 0%, var(--day-bottom) 100%);
+}
+
+.sunset {
+    background: linear-gradient(135deg, var(--sunset-top) 0%, var(--sunset-bottom) 100%);
+}
+
+.night {
+    background: linear-gradient(135deg, var(--night-top) 0%, var(--night-bottom) 100%);
+}
+
+/* LAYER 2: Atmospheric Vignette & Glow */
+.sky-glow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background:
+        radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.1) 0%, transparent 70%),
+        linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, transparent 20%, transparent 80%, rgba(0, 0, 0, 0.1) 100%);
+    pointer-events: none;
+    transition: all 2s ease;
+}
+
+/* Specific Sunrise Ray Effect */
+.mode-sunrise .sky-glow::before,
+.mode-sunset .sky-glow::before {
+    content: '';
+    position: absolute;
+    bottom: -100%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    animation: raySpin 120s linear infinite;
+    mask-image: radial-gradient(circle at 50% 50%, black 0%, transparent 70%);
+    -webkit-mask-image: radial-gradient(circle at 50% 50%, black 0%, transparent 70%);
+    z-index: -1;
+}
+
+.mode-sunrise .sky-glow::before {
+    background: conic-gradient(from 0deg at 50% 50%, transparent 0deg, rgba(255, 208, 128, 0.2) 15deg, transparent 30deg);
+}
+
+.mode-sunset .sky-glow::before {
+    background: conic-gradient(from 45deg at 50% 50%, transparent 0deg, rgba(255, 107, 78, 0.15) 15deg, transparent 30deg);
+}
+
+.mode-sunrise .sky-glow {
+    background:
+        radial-gradient(circle at 50% 100%, rgba(255, 208, 128, 0.6) 0%, transparent 60%),
+        linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, transparent 100%);
+}
+
+.mode-sunset .sky-glow {
+    background:
+        radial-gradient(circle at 50% 100%, rgba(255, 107, 78, 0.7) 0%, transparent 70%),
+        linear-gradient(180deg, rgba(49, 34, 68, 0.4) 0%, transparent 100%);
+}
+
+.mode-day .sky-glow {
+    background:
+        radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.4) 0%, transparent 70%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, transparent 100%);
+}
+
+#app {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 2.5rem 1.5rem 8rem;
+    /* Added large bottom padding for nav */
+    max-width: 480px;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+    z-index: 10;
+}
+
+/* Header Meta */
+.meta-info {
+    font-size: 0.85rem;
+    letter-spacing: 0.15rem;
+    text-transform: uppercase;
+    font-weight: 500;
+    /* Increased weight */
+}
+
+/* Screens */
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+    /* Subtle slide up */
+}
+
+.screen.active {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(0);
+}
+
+.sky-quote {
+    font-size: 1.1rem;
+    font-weight: 400;
+    /* Heavier for legibility */
+    margin: 1rem 0 2rem;
+    /* Reduced margins */
+    letter-spacing: 0.02rem;
+}
+
+/* LAYER 3: Glass Blur Cards */
+.card,
+.btn-start,
+.btn-glass,
+.expedition-card,
+.bottom-nav {
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+}
+
+.btn-start-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 1rem 0;
+    /* Adjusted margin */
+}
+
+.btn-start {
+    width: 170px;
+    /* Smaller button */
+    height: 170px;
+    /* Smaller button */
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: white;
+    font-size: 1rem;
+    letter-spacing: 0.15rem;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.btn-start:active {
+    transform: scale(0.92);
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.18);
+    /* More opaque */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 32px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.sub-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1rem;
+    font-weight: 600;
+}
+
+/* RIDE RECORDING SCREEN */
+.recording-top {
+    margin-bottom: 1.5rem;
+    /* Reduced from 3rem */
+    text-align: center;
+}
+
+.pulse-dot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 700;
+}
+
+.dot-red {
+    width: 8px;
+    height: 8px;
+    background: #ff4757;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.5);
+        opacity: 0.5;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.stats-grid-ride {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    width: 100%;
+    margin-top: 1.5rem;
+    /* Reduced from 3rem */
+    padding-top: 1.5rem;
+    /* Reduced from 2rem */
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-item-ride .val {
+    font-size: 1.1rem;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.stat-item-ride .lbl {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1rem;
+    opacity: 0.6;
+}
+
+.recording-bottom {
+    margin-top: 1.5rem;
+    /* Further reduced */
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    /* Tighter gap */
+    padding-bottom: 2.5rem;
+    /* Added padding to push everything UP from the bottom nav */
+}
+
+.safety-status-chip {
+    align-self: center;
+    background: rgba(46, 213, 115, 0.15);
+    border: 1px solid rgba(46, 213, 115, 0.3);
+    color: #2ed573;
+    padding: 6px 14px;
+    /* Slightly more compact */
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.05rem;
+    backdrop-filter: blur(10px);
+}
+
+.stop-btn {
+    border-color: rgba(255, 71, 87, 0.3) !important;
+}
+
+.stop-btn:active {
+    background: rgba(255, 71, 87, 0.2) !important;
+}
+
+/* Day Mode Adjustments for Recording */
+.mode-day .dot-red {
+    background: #e84118;
+}
+
+.mode-day .stats-grid-ride {
+    border-color: rgba(0, 0, 0, 0.05);
+}
+
+.mode-day .safety-status-chip {
+    background: rgba(46, 213, 115, 0.1);
+    border-color: rgba(46, 213, 115, 0.4);
+    color: #05c46b;
+}
+
+/* Recording Screen Content */
+.recording-center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.big-number {
+    font-size: 6rem;
+    /* Reduced from 7.5rem */
+    font-weight: 300;
+    line-height: 1;
+}
+
+.unit-label {
+    font-size: 0.9rem;
+    letter-spacing: 0.4rem;
+    margin-top: 1rem;
+    font-weight: 500;
+}
+
+.stats-grid {
+    display: flex;
+    justify-content: space-around;
+    padding: 3rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    margin-top: 2rem;
+}
+
+.stat-item .val {
+    font-size: 1.4rem;
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+    display: block;
+}
+
+.control-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 0;
+    /* Removed margin-bottom to lift up */
+}
+
+.btn-glass {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: inherit;
+    padding: 1.2rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    letter-spacing: 0.1rem;
+    cursor: pointer;
+}
+
+/* Expedition Content */
+.expedition-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    text-align: left;
+    margin-top: 1rem;
+}
+
+.expedition-card {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 24px;
+    padding: 1.8rem;
+}
+
+.expedition-card h3 {
+    margin-bottom: 0.4rem;
+    font-size: 1.3rem;
+    font-weight: 400;
+}
+
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* Better alignment */
+    width: 100%;
+    margin-bottom: 2rem;
+}
+
+.avatar-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 3px;
+    cursor: pointer;
+}
+
+.mode-day .avatar-btn {
+    background: rgba(255, 255, 255, 0.4);
+    border-color: rgba(27, 38, 59, 0.15);
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #FF9A9E, #FAD0C4);
+    /* Placeholder avatar */
+}
+
+/* Screen Transitions */
+.screen-container {
+    flex: 1;
+    position: relative;
+    margin-top: 1rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.screen-title {
+    font-size: 1.8rem;
+    font-weight: 300;
+    text-align: left;
+    margin-bottom: 2rem;
+}
+
+/* Bottom Navigation - Centered & Responsive */
+.bottom-nav {
+    position: fixed;
+    bottom: 1.5rem;
+    /* Lowered position */
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 2.5rem);
+    max-width: 420px;
+    height: 64px;
+    /* More compact height */
+    background: rgba(40, 40, 40, 0.1);
+    /* Slightly darker for contrast */
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 22px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 100;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+    opacity: 0.45;
+    transition: all 0.3s ease;
+    flex: 1;
+}
+
+.nav-item.active {
+    opacity: 1;
+}
+
+.nav-icon {
+    font-size: 1.1rem;
+}
+
+.nav-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+}
+
+/* Safety Page Styles */
+.big-circle-alert {
+    width: 120px;
+    height: 120px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 3rem;
+    margin: 0 auto;
+    animation: shieldPulse 2s infinite;
+}
+
+.mode-day .big-circle-alert {
+    background: rgba(27, 38, 59, 0.05);
+    border-color: rgba(27, 38, 59, 0.2);
+    animation: dayShieldPulse 2s infinite;
+}
+
+.profile-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(50px);
+    -webkit-backdrop-filter: blur(50px);
+    z-index: 1000;
+    color: white;
+    /* Always light on dark overlay */
+}
+
+.profile-content {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    -ms-overflow-style: none;
+    /* Hide scrollbar IE/Edge */
+    scrollbar-width: none;
+    /* Hide scrollbar Firefox */
+}
+
+.profile-content::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar Chrome/Safari */
+
+.settings-list {
+    width: 100%;
+    max-width: 400px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+}
+
+.section-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    opacity: 0.5;
+    margin-bottom: 1.2rem;
+    font-weight: 600;
+}
+
+.setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.setting-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.setting-sub {
+    font-size: 0.75rem;
+    opacity: 0.5;
+}
+
+.setting-arrow {
+    opacity: 0.3;
+    font-size: 1.2rem;
+}
+
+/* ACTIVITY SHEET */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s ease;
+}
+
+.overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.activity-sheet {
+    position: fixed;
+    bottom: -100%;
+    left: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 40px 40px 0 0;
+    padding: 1rem 1.5rem 4rem;
+    /* Adjusted top padding */
+    z-index: 1001;
+    transition: bottom 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.sheet-grabber {
+    width: 36px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    margin: 0.5rem auto 1.5rem;
+}
+
+.overlay.active .activity-sheet {
+    bottom: 0;
+}
+
+.sheet-header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.sheet-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    letter-spacing: 0.02rem;
+}
+
+.activity-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+    max-width: 440px;
+    /* Constrain for desktop */
+    margin: 0 auto;
+}
+
+.activity-card {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 28px;
+    padding: 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.activity-card:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-5px);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.activity-card:active {
+    transform: scale(0.95);
+}
+
+.activity-icon {
+    font-size: 2.2rem;
+}
+
+.activity-label {
+    font-size: 0.95rem;
+    font-weight: 500;
+    letter-spacing: 0.05rem;
+}
+
+.activity-grid.sub-mode {
+    grid-template-columns: 1fr;
+    /* Stack for detailed modes */
+}
+
+.activity-grid.route-stage {
+    display: block;
+    /* Break out of grid to center properly */
+    width: 100%;
+}
+
+.sub-card {
+    text-align: left;
+    align-items: flex-start;
+    padding: 1.5rem;
+}
+
+.sub-card .header-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sub-card .description {
+    font-size: 0.75rem;
+    opacity: 0.6;
+    margin-top: 4px;
+    line-height: 1.4;
+}
+
+/* COCKPIT EXTRAS */
+.mode-indicator-chip {
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 8px;
+    display: inline-block;
+}
+
+.chip-race {
+    background: rgba(255, 71, 87, 0.2);
+    color: #ff4757;
+    border: 1px solid rgba(255, 71, 87, 0.3);
+}
+
+.chip-touring {
+    background: rgba(55, 66, 250, 0.2);
+    color: #70a1ff;
+    border: 1px solid rgba(55, 66, 250, 0.3);
+}
+
+.checkpoint-ticker {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 14px 18px;
+    border-radius: 20px;
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 0.85rem;
+}
+
+.ticker-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.remaining-val {
+    font-weight: 700;
+    color: #ff4757;
+}
+
+.remaining-val small {
+    font-size: 0.6rem;
+    opacity: 0.6;
+}
+
+.ticker-progress-bg {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.ticker-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #ff4757, #ff6b81);
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+
+.mode-day .checkpoint-ticker {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+.mode-day .ticker-progress-bg {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+/* ROUTE SELECTION STAGE REBALANCED */
+.upload-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    border: 1.5px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 24px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    background: rgba(255, 255, 255, 0.04);
+    margin: 0.5rem 0 2rem;
+    width: 100%;
+}
+
+.upload-zone:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-3px);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.upload-icon {
+    font-size: 2.2rem;
+    background: rgba(255, 255, 255, 0.08);
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 18px;
+    margin-bottom: 0.2rem;
+}
+
+.route-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    max-height: 250px;
+    overflow-y: auto;
+    padding-right: 4px;
+    margin-bottom: 1.5rem;
+}
+
+/* Custom Scrollbar */
+.route-list::-webkit-scrollbar {
+    width: 3px;
+}
+
+.route-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.route-item {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1rem 1.4rem;
+    border-radius: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.route-item:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.route-info {
+    text-align: left;
+}
+
+.route-info .name {
+    font-size: 0.95rem;
+    font-weight: 500;
+    display: block;
+}
+
+.route-info .dist {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+    opacity: 0.4;
+    margin-top: 2px;
+}
+
+.skip-btn {
+    width: 100%;
+    background: none;
+    border: none;
+    color: inherit;
+    padding: 0.5rem;
+    font-size: 0.85rem;
+    opacity: 0.4;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.skip-btn:hover {
+    opacity: 1;
+    text-decoration: underline;
+}
+
+.mode-day .upload-zone {
+    border-color: rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.mode-day .upload-icon {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.mode-day .route-item {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.06);
+}
+
+.mode-day .route-info .name {
+    color: #1a1a1a;
+}
+
+.mode-day .activity-sheet,
+.mode-sunrise .activity-sheet,
+.mode-sunset .activity-sheet {
+    background: rgba(255, 255, 255, 0.75);
+    border-color: rgba(0, 0, 0, 0.05);
+    color: #1a1a1a;
+}
+
+.mode-day .sheet-grabber,
+.mode-sunrise .sheet-grabber,
+.mode-sunset .sheet-grabber {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.mode-day .activity-card,
+.mode-sunrise .activity-card,
+.mode-sunset .activity-card {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+/* GPU Friendly Stars for Night */
+.night-stars {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1.5;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 2s;
+}
+
+.active-night .night-stars {
+    opacity: 0.6;
+}
+
+/* CLOUDS */
+.sky-clouds {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.cloud {
+    position: absolute;
+    filter: blur(4px);
+    /* Balanced blur */
+    animation: cloudDrift linear infinite;
+    will-change: transform;
+}
+
+@keyframes cloudDrift {
+    from {
+        left: -400px;
+    }
+
+    to {
+        left: 100vw;
+    }
+}
+
+/* Adaptive Clouds - BALANCED VERSION */
+.mode-day .cloud svg,
+.mode-sunrise .cloud svg,
+.mode-sunset .cloud svg {
+    fill: #ffffff;
+}
+
+.app-root.mode-day .cloud,
+.app-root.mode-sunrise .cloud,
+.app-root.mode-sunset .cloud {
+    opacity: 0.45 !important;
+    /* Balanced opacity */
+}
+
+.mode-night .cloud {
+    opacity: 0.15 !important;
+}
+
+.mode-night .cloud svg {
+    fill: #4e6a8e;
+    /* Subtle dark blue clouds at night */
+}
+
+.star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+}
