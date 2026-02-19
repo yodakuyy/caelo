@@ -30,6 +30,6 @@ echo Pushing to GitHub (main branch)...
 git push -u origin main
 
 echo.
-echo [Caelo] GitHub Update Complete! ✨
+echo [Caelo] GitHub Update Complete!
 echo.
 pause
