@@ -75,6 +75,7 @@ function App() {
     const [pendingConfirm, setPendingConfirm] = useState<'nav' | 'record' | null>(null);
     const [showRouteSelectorDuringRide, setShowRouteSelectorDuringRide] = useState(false);
     const [hideNavPrompt, setHideNavPrompt] = useState(false);
+    const [isNavMinimized, setIsNavMinimized] = useState(false);
     const [showSummary, setShowSummary] = useState(false);
     const [summaryData, setSummaryData] = useState<any>(null);
     const [rideHistory, setRideHistory] = useState<any[]>([]);
@@ -83,6 +84,7 @@ function App() {
     const [seconds, setSeconds] = useState(3720);
     const [elevation, setElevation] = useState(342);
     const [isRecording, setIsRecording] = useState(false);
+    const [isGroupActive, setIsGroupActive] = useState(false);
     const [timeStr, setTimeStr] = useState('');
 
     const activities = [
@@ -93,8 +95,8 @@ function App() {
     ];
 
     const rideSubModes = [
-        { id: 'race', label: 'Race / Event', icon: '🏁', modeId: 'race', desc: 'Auto Check-in & Navigation (GPX focus)' },
-        { id: 'touring', label: 'Expedition', icon: '🎒', modeId: 'touring', desc: 'Multi-day Touring Plan (Day-by-day)' },
+        { id: 'race', label: 'Race / Event', icon: '🚴', modeId: 'race', desc: 'Auto Check-in & Navigation (GPX focus)' },
+        { id: 'touring', label: 'Expedition', icon: '🚵', modeId: 'touring', desc: 'Multi-day Touring Plan (Day-by-day)' },
         { id: 'daily', label: 'Daily Ride', icon: '🚲', modeId: 'daily', desc: 'Free Ride (Optional GPX)' },
     ];
 
@@ -211,6 +213,24 @@ function App() {
                             <h2 style={{ margin: '0.5rem 0', fontWeight: 300 }}>12.4 km · {rideMode.toUpperCase()}</h2>
                             <p className="sub-label">“Yesterday at Sunset”</p>
                         </div>
+
+                        {/* LIVE GROUP SHARING CARD */}
+                        <div className="card live-group-card">
+                            <div className="group-info">
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                    <div className={`live-dot ${isGroupActive ? 'pulsing' : ''}`} />
+                                    <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Live Location Sharing</span>
+                                </div>
+                                <p className="sub-label">Active Group: "Weekend Warriors"</p>
+                            </div>
+                            <button
+                                className={`btn-glass btn-toggle-group ${isGroupActive ? 'active' : ''}`}
+                                onClick={() => setIsGroupActive(!isGroupActive)}
+                                style={{ padding: '0.6rem 1rem', fontSize: '0.7rem', borderRadius: '12px' }}
+                            >
+                                {isGroupActive ? 'ACTIVE' : 'OFF'}
+                            </button>
+                        </div>
                     </section>
 
                     {/* 1: TRACK (Ride Recording Mode) */}
@@ -256,180 +276,194 @@ function App() {
                                     </div>
                                 </>
                             ) : (
-                                <div className="nav-navigation-view">
+                                <>
                                     {selectedRoute && (
-                                        <div className="nav-overlay-info">
+                                        <div className={`nav-overlay-info ${isNavMinimized ? 'minimized' : ''}`} onClick={() => isNavMinimized && setIsNavMinimized(false)}>
                                             <span className="turn-icon">⬅️</span>
-                                            <div className="turn-text">
-                                                <span className="next-turn">Turn Left in 400m</span>
-                                                <span className="street-name">Jl. Raya Bandung</span>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {!selectedRoute && !hideNavPrompt && (
-                                        <div className="no-route-overlay">
-                                            <div className="no-route-content">
-                                                <button className="btn-load-route" onClick={() => setShowRouteSelectorDuringRide(true)}>
-                                                    LOAD NEW ROUTE
-                                                </button>
-                                                <button className="btn-hide-prompt" onClick={() => setHideNavPrompt(true)}>
-                                                    FREE RIDE (HIDE GPS)
-                                                </button>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {!selectedRoute && hideNavPrompt && (
-                                        <button className="map-fab-search" onClick={() => setShowRouteSelectorDuringRide(true)}>
-                                            <span className="fab-icon">🗺️</span>
-                                            <span className="fab-text">MAPS</span>
-                                        </button>
-                                    )}
-
-                                    <div className="gpx-path-container">
-                                        <div className="map-labels">
-                                            <span className="map-label" style={{ top: '10%', left: '70%' }}>Mount Peak</span>
-                                            <span className="map-label" style={{ top: '80%', left: '20%' }}>Start Point</span>
-                                            <span className="map-label" style={{ top: '45%', left: '50%' }}>Mid Valley</span>
-                                        </div>
-                                        <svg viewBox="0 0 100 100" className="gpx-svg">
-                                            <defs>
-                                                <pattern id="urban-pattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-                                                    <rect x="2" y="2" width="6" height="6" fill="rgba(255,255,255,0.02)" rx="1" />
-                                                    <rect x="12" y="4" width="4" height="8" fill="rgba(255,255,255,0.02)" rx="1" />
-                                                    <rect x="4" y="12" width="8" height="4" fill="rgba(255,255,255,0.02)" rx="1" />
-                                                </pattern>
-                                                <filter id="glow">
-                                                    <feGaussianBlur stdDeviation="1.5" result="coloredBlur" />
-                                                    <feMerge>
-                                                        <feMergeNode in="coloredBlur" />
-                                                        <feMergeNode in="SourceGraphic" />
-                                                    </feMerge>
-                                                </filter>
-                                            </defs>
-
-                                            {/* Map Background Base */}
-                                            <rect width="100%" height="100%" fill="rgba(0,0,0,0.1)" />
-
-                                            {/* Urban Areas / City Blocks */}
-                                            <rect width="100" height="100" fill="url(#urban-pattern)" />
-
-                                            {/* Sub Grid */}
-                                            <g className="map-subgrid">
-                                                {[...Array(10)].map((_, i) => (
-                                                    <line key={`v-${i}`} x1={i * 10} y1="0" x2={i * 10} y2="100" stroke="rgba(255,255,255,0.03)" strokeWidth="0.1" />
-                                                ))}
-                                                {[...Array(10)].map((_, i) => (
-                                                    <line key={`h-${i}`} x1="0" y1={i * 10} x2="100" y2={i * 10} stroke="rgba(255,255,255,0.03)" strokeWidth="0.1" />
-                                                ))}
-                                            </g>
-
-                                            {/* Secondary Road Network */}
-                                            <g className="map-secondary-roads">
-                                                <path d="M0,45 L100,40 M30,0 L35,100 M0,75 Q50,65 100,80 M70,0 C65,40 85,60 80,100" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
-                                            </g>
-
-                                            {/* Main GPX Route Path - Differentiated Traveled vs Planned */}
-                                            <path
-                                                className="path-planned"
-                                                d="M10,90 C25,85 20,70 35,65 S45,40 65,35 S80,10 90,5"
-                                                fill="none"
-                                                stroke="#34ace0"
-                                                strokeWidth="5"
-                                                strokeLinecap="round"
-                                                opacity="0.2"
-                                            />
-                                            <path
-                                                className="main-route-active"
-                                                d="M10,90 C25,85 20,70 35,65 S45,40 65,35 S80,10 90,5"
-                                                fill="none"
-                                                stroke="#2ed573"
-                                                strokeWidth="5"
-                                                strokeLinecap="round"
-                                                strokeDasharray="200"
-                                                strokeDashoffset={200 - (distance / (selectedRoute?.dist || 207)) * 200}
-                                                filter="url(#glow)"
-                                            />
-
-                                            {/* Checkpoint Markers - Only show if CP exists */}
-                                            {rideMode === 'race' && (
-                                                <g className="checkpoints">
-                                                    <circle cx="35" cy="65" r="2.5" fill="#ff9f43" stroke="white" strokeWidth="0.5" />
-                                                    <circle cx="65" cy="35" r="2.5" fill="#ff9f43" stroke="white" strokeWidth="0.5" />
-                                                </g>
+                                            {!isNavMinimized && (
+                                                <div className="turn-text">
+                                                    <span className="next-turn">Turn Left in 400m</span>
+                                                    <span className="street-name">Jl. Raya Bandung</span>
+                                                </div>
                                             )}
+                                            <button className="btn-nav-toggle" onClick={(e) => {
+                                                e.stopPropagation();
+                                                setIsNavMinimized(!isNavMinimized);
+                                            }}>
+                                                {isNavMinimized ? '▼' : '▲'}
+                                            </button>
+                                        </div>
+                                    )}
 
-                                            {/* Finish Goal Marker */}
-                                            <g transform="translate(90, 5)">
-                                                <circle r="4" fill="rgba(46, 213, 115, 0.2)">
-                                                    <animate attributeName="r" values="3;6;3" dur="2s" repeatCount="indefinite" />
-                                                </circle>
-                                                <path d="M-1,0 L1,0 M0,-1 L0,1" stroke="white" strokeWidth="0.5" />
-                                                <circle r="1.5" fill="#2ed573" />
-                                            </g>
+                                    <div className="nav-navigation-view">
+                                        {!selectedRoute && !hideNavPrompt && (
+                                            <div className="no-route-overlay">
+                                                <div className="no-route-content">
+                                                    <button className="btn-load-route" onClick={() => setShowRouteSelectorDuringRide(true)}>
+                                                        LOAD NEW ROUTE
+                                                    </button>
+                                                    <button className="btn-hide-prompt" onClick={() => setHideNavPrompt(true)}>
+                                                        FREE RIDE (HIDE GPS)
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
 
-                                            {/* Live Rider Position Cursor */}
-                                            <g className="rider-cursor">
-                                                <circle r="8" fill="rgba(255, 71, 87, 0.15)">
-                                                    <animate attributeName="r" values="6;10;6" dur="1.5s" repeatCount="indefinite" />
-                                                </circle>
-                                                <circle r="3.5" fill="#ff4757" stroke="white" strokeWidth="1" />
-                                                <path d="M0,-8 L0,-5 M8,0 L5,0 M0,8 L0,5 M-8,0 L-5,0" stroke="#ff4757" strokeWidth="0.5" />
+                                        {!selectedRoute && hideNavPrompt && (
+                                            <button className="map-fab-search" onClick={() => setShowRouteSelectorDuringRide(true)}>
+                                                <span className="fab-icon">🗺️</span>
+                                                <span className="fab-text">MAPS</span>
+                                            </button>
+                                        )}
 
-                                                <animateMotion
-                                                    path="M10,90 C25,85 20,70 35,65 S45,40 65,35 S80,10 90,5"
-                                                    dur="120s"
-                                                    rotate="auto"
-                                                    repeatCount="indefinite"
+                                        <div className="gpx-path-container">
+                                            <div className="map-labels">
+                                                <span className="map-label" style={{ top: '10%', left: '70%' }}>Mount Peak</span>
+                                                <span className="map-label" style={{ top: '80%', left: '20%' }}>Start Point</span>
+                                                <span className="map-label" style={{ top: '45%', left: '50%' }}>Mid Valley</span>
+
+                                                {isGroupActive && (
+                                                    <>
+                                                        <div className="member-label" style={{ top: '55%', left: '35%' }}>Bobi</div>
+                                                        <div className="member-label" style={{ top: '72%', left: '30%' }}>
+                                                            Andi <div className="blue-dot" />
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+                                            <svg viewBox="0 0 100 100" className="gpx-svg">
+                                                <defs>
+                                                    <pattern id="urban-pattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                                                        <rect x="2" y="2" width="6" height="6" fill="rgba(255,255,255,0.02)" rx="1" />
+                                                        <rect x="12" y="4" width="4" height="8" fill="rgba(255,255,255,0.02)" rx="1" />
+                                                        <rect x="4" y="12" width="8" height="4" fill="rgba(255,255,255,0.02)" rx="1" />
+                                                    </pattern>
+                                                    <filter id="glow">
+                                                        <feGaussianBlur stdDeviation="1.5" result="coloredBlur" />
+                                                        <feMerge>
+                                                            <feMergeNode in="coloredBlur" />
+                                                            <feMergeNode in="SourceGraphic" />
+                                                        </feMerge>
+                                                    </filter>
+                                                </defs>
+
+                                                {/* Map Background Base */}
+                                                <rect width="100%" height="100%" fill="rgba(0,0,0,0.1)" />
+
+                                                {/* Urban Areas / City Blocks */}
+                                                <rect width="100" height="100" fill="url(#urban-pattern)" />
+
+                                                {/* Sub Grid */}
+                                                <g className="map-subgrid">
+                                                    {[...Array(10)].map((_, i) => (
+                                                        <line key={`v-${i}`} x1={i * 10} y1="0" x2={i * 10} y2="100" stroke="rgba(255,255,255,0.03)" strokeWidth="0.1" />
+                                                    ))}
+                                                    {[...Array(10)].map((_, i) => (
+                                                        <line key={`h-${i}`} x1="0" y1={i * 10} x2="100" y2={i * 10} stroke="rgba(255,255,255,0.03)" strokeWidth="0.1" />
+                                                    ))}
+                                                </g>
+
+                                                {/* Secondary Road Network */}
+                                                <g className="map-secondary-roads">
+                                                    <path d="M0,45 L100,40 M30,0 L35,100 M0,75 Q50,65 100,80 M70,0 C65,40 85,60 80,100" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
+                                                </g>
+
+                                                {/* Main GPX Route Path - Differentiated Traveled vs Planned */}
+                                                <path
+                                                    className="path-planned"
+                                                    d="M10,90 C25,85 20,70 35,65 S45,40 65,35 S80,10 90,5"
+                                                    fill="none"
+                                                    stroke="#34ace0"
+                                                    strokeWidth="5"
+                                                    strokeLinecap="round"
+                                                    opacity="0.2"
                                                 />
-                                            </g>
-                                        </svg>
-                                    </div>
+                                                <path
+                                                    className="main-route-active"
+                                                    d="M10,90 C25,85 20,70 35,65 S45,40 65,35 S80,10 90,5"
+                                                    fill="none"
+                                                    stroke="#2ed573"
+                                                    strokeWidth="5"
+                                                    strokeLinecap="round"
+                                                    strokeDasharray="200"
+                                                    strokeDashoffset={200 - (distance / (selectedRoute?.dist || 207)) * 200}
+                                                    filter="url(#glow)"
+                                                />
 
-                                </div>
+                                                {/* Checkpoint Markers - Only show if CP exists */}
+                                                {rideMode === 'race' && (
+                                                    <g className="checkpoints">
+                                                        <circle cx="35" cy="65" r="2.5" fill="#ff9f43" stroke="white" strokeWidth="0.5" />
+                                                        <circle cx="65" cy="35" r="2.5" fill="#ff9f43" stroke="white" strokeWidth="0.5" />
+                                                    </g>
+                                                )}
+
+                                                {/* Finish Goal Marker */}
+                                                <g transform="translate(90, 5)">
+                                                    <circle r="4" fill="rgba(46, 213, 115, 0.2)">
+                                                        <animate attributeName="r" values="3;6;3" dur="2s" repeatCount="indefinite" />
+                                                    </circle>
+                                                    <path d="M-1,0 L1,0 M0,-1 L0,1" stroke="white" strokeWidth="0.5" />
+                                                    <circle r="1.5" fill="#2ed573" />
+                                                </g>
+
+                                                {/* Live Rider Position Cursor */}
+                                                <g className="rider-cursor">
+                                                    <circle r="8" fill="rgba(255, 71, 87, 0.15)">
+                                                        <animate attributeName="r" values="6;10;6" dur="1.5s" repeatCount="indefinite" />
+                                                    </circle>
+                                                    <circle r="3.5" fill="#ff4757" stroke="white" strokeWidth="1" />
+                                                    <path d="M0,-8 L0,-5 M8,0 L5,0 M0,8 L0,5 M-8,0 L-5,0" stroke="#ff4757" strokeWidth="0.5" />
+
+                                                    <animateMotion
+                                                        path="M10,90 C25,85 20,70 35,65 S45,40 65,35 S80,10 90,5"
+                                                        dur="120s"
+                                                        rotate="auto"
+                                                        repeatCount="indefinite"
+                                                    />
+                                                </g>
+                                            </svg>
+                                        </div>
+
+                                    </div>
+                                </>
                             )}
 
                             {/* MODE SPECIFIC MOCKUP DATA - Only show if data exists */}
-                            {rideMode === 'race' && (() => {
+                            {cockpitMode !== 'nav' && rideMode === 'race' && (() => {
                                 const raceCheckpoints = [
                                     { name: 'CP 1', km: 54 },
                                     { name: 'CP 2', km: 101 },
                                     { name: 'CP 3', km: 154 },
                                     { name: 'Finish', km: 207 }
                                 ];
+                                const nextCP = raceCheckpoints.find(cp => distance < cp.km) || { name: 'Finish', km: 207 };
+                                const remaining = nextCP.km - distance;
+                                const isFinished = distance >= 207;
 
-                                // Conditional check: If we have CP data, show the ticker
-                                if (raceCheckpoints.length > 0) {
-                                    const nextCP = raceCheckpoints.find(cp => distance < cp.km) || { name: 'Finish', km: 207 };
-                                    const remaining = nextCP.km - distance;
-                                    const isFinished = distance >= 207;
-
-                                    return (
-                                        <div className="checkpoint-ticker race-active">
-                                            <div className="ticker-main">
-                                                <span>🚩 {isFinished ? 'Race Completed!' : `Next: ${nextCP.name}`}</span>
-                                                {!isFinished && <span className="remaining-val">-{remaining.toFixed(1)} <small>KM LEFT</small></span>}
-                                            </div>
-                                            {!isFinished && (
-                                                <div className="ticker-progress-bg">
-                                                    <div className="ticker-progress-bar" style={{ width: `${(distance / nextCP.km) * 100}%` }} />
-                                                </div>
-                                            )}
+                                return (
+                                    <div className="checkpoint-ticker race-active">
+                                        <div className="ticker-main">
+                                            <span>🚩 {isFinished ? 'Race Completed!' : `Next: ${nextCP.name}`}</span>
+                                            {!isFinished && <span className="remaining-val">-{remaining.toFixed(1)} <small>KM LEFT</small></span>}
                                         </div>
-                                    );
-                                }
-                                return null;
+                                        {!isFinished && (
+                                            <div className="ticker-progress-bg">
+                                                <div className="ticker-progress-bar" style={{ width: `${(distance / nextCP.km) * 100}%` }} />
+                                            </div>
+                                        )}
+                                    </div>
+                                );
                             })()}
-                            {rideMode === 'touring' && (
+                            {cockpitMode !== 'nav' && rideMode === 'touring' &&
                                 <div className="checkpoint-ticker touring-active">
                                     <span>📍 <b>Day 2</b> of 3</span>
                                     <span style={{ opacity: 0.6 }}>To: Garut City</span>
                                 </div>
-                            )}
+                            }
 
-                            {/* CLIMB PRO - REPOSITIONED BELOW CP (Auto-Appear: 0.1km - 10km) */}
-                            {cockpitMode === 'nav' && distance >= 0.1 && distance <= 10 && (
+                            {/* CLIMB PRO CHART - STICKED TO BOTTOM OF CENTER VIEW */}
+                            {cockpitMode === 'nav' && distance >= 0.1 && distance <= 10 &&
                                 <div className="climb-profile-container auto-appear">
                                     <div className="climb-info-header">
                                         <div className="climb-badge">
@@ -441,19 +475,22 @@ function App() {
                                             <span className="grad-sub">GRAD</span>
                                         </div>
                                     </div>
-                                    <div className="elevation-visual-bars">
-                                        <div className="elev-bar" style={{ height: '30%', background: '#2ed573' }}></div>
-                                        <div className="elev-bar" style={{ height: '45%', background: '#ff9f43' }}></div>
-                                        <div className="elev-bar" style={{ height: '70%', background: '#ff4757', border: '1px solid rgba(255,255,255,0.4)', position: 'relative' }}>
-                                            <div className="rider-climb-marker" />
-                                        </div>
-                                        <div className="elev-bar" style={{ height: '90%', background: '#b33939' }}></div>
-                                        <div className="elev-bar" style={{ height: '60%', background: '#ff4757' }}></div>
-                                        <div className="elev-bar" style={{ height: '40%', background: '#ff9f43' }}></div>
-                                        <div className="elev-bar" style={{ height: '20%', background: '#2ed573' }}></div>
+                                    <div className="elevation-chart-wrapper">
+                                        <svg viewBox="0 0 200 60" className="climb-svg">
+                                            <defs>
+                                                <linearGradient id="climbGradient" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="0%" stopColor="#ff4757" stopOpacity="0.8" />
+                                                    <stop offset="60%" stopColor="#ff9f43" stopOpacity="0.6" />
+                                                    <stop offset="100%" stopColor="#2ed573" stopOpacity="0.2" />
+                                                </linearGradient>
+                                            </defs>
+                                            <path d="M0,60 L0,45 C20,40 35,55 50,35 S80,10 110,25 S150,45 180,40 L200,35 L200,60 Z" fill="url(#climbGradient)" stroke="white" strokeWidth="1.5" strokeLinejoin="round" />
+                                            <g className="rider-climb-position"><circle cx="85" cy="22" r="3" fill="white" stroke="#ff4757" strokeWidth="2"><animate attributeName="r" values="3;5;3" dur="1s" repeatCount="indefinite" /></circle></g>
+                                        </svg>
+                                        <div className="chart-labels"><span>4km left</span><span>Peak: 1240m</span></div>
                                     </div>
                                 </div>
-                            )}
+                            }
                         </div>
 
                         <div className="recording-bottom">
@@ -615,81 +652,83 @@ function App() {
                     <NavItem active={screen === 2} label="Expedition" icon="🏔️" onClick={() => setScreen(2)} />
                     <NavItem active={screen === 3} label="Safety" icon="🛡️" onClick={() => setScreen(3)} />
                 </nav>
-            </main>
+            </main >
 
             {/* PROFILE HUB OVERLAY */}
             {showProfile && <ProfileHub onClose={() => setShowProfile(false)} />}
 
             {/* RIDE SUMMARY OVERLAY (STRAVA STYLE) */}
-            {showSummary && summaryData && (
-                <div className="ride-summary-overlay">
-                    <div className="summary-card-container">
-                        <div className="summary-share-card">
-                            <div className="card-header">
-                                <div className="user-info-mini">
-                                    <div className="mini-avatar">YF</div>
-                                    <div className="user-meta">
-                                        <strong>Yogi Fermana</strong>
-                                        <span>{summaryData.date} · {summaryData.type.toUpperCase()}</span>
+            {
+                showSummary && summaryData && (
+                    <div className="ride-summary-overlay">
+                        <div className="summary-card-container">
+                            <div className="summary-share-card">
+                                <div className="card-header">
+                                    <div className="user-info-mini">
+                                        <div className="mini-avatar">YF</div>
+                                        <div className="user-meta">
+                                            <strong>Yogi Fermana</strong>
+                                            <span>{summaryData.date} · {summaryData.type.toUpperCase()}</span>
+                                        </div>
+                                    </div>
+                                    <div className="brand-logo-mini">CAELO</div>
+                                </div>
+
+                                <div className="summary-map-preview">
+                                    <svg viewBox="0 0 100 100" className="summary-svg">
+                                        <path
+                                            d="M10,90 C25,85 20,70 35,65 S45,40 65,35 S80,10 90,5"
+                                            fill="none"
+                                            stroke="#2ed573"
+                                            strokeWidth="4"
+                                            strokeLinecap="round"
+                                            filter="url(#glow)"
+                                        />
+                                        <circle cx="10" cy="90" r="2" fill="white" />
+                                        <circle cx="90" cy="5" r="2" fill="#2ed573" />
+                                    </svg>
+                                    <div className="map-watermark">Caelo Maps Engine</div>
+                                </div>
+
+                                <div className="summary-stats-grid">
+                                    <div className="s-stat">
+                                        <span className="s-val">{summaryData.dist.toFixed(2)}</span>
+                                        <span className="s-lbl">Distance (km)</span>
+                                    </div>
+                                    <div className="s-stat">
+                                        <span className="s-val">{formatTime(summaryData.time)}</span>
+                                        <span className="s-lbl">Moving Time</span>
+                                    </div>
+                                    <div className="s-stat">
+                                        <span className="s-val">{summaryData.elev}m</span>
+                                        <span className="s-lbl">Elevation</span>
+                                    </div>
+                                    <div className="s-stat">
+                                        <span className="s-val">{(summaryData.dist / (summaryData.time / 3600)).toFixed(1)}</span>
+                                        <span className="s-lbl">Avg (km/h)</span>
                                     </div>
                                 </div>
-                                <div className="brand-logo-mini">CAELO</div>
-                            </div>
 
-                            <div className="summary-map-preview">
-                                <svg viewBox="0 0 100 100" className="summary-svg">
-                                    <path
-                                        d="M10,90 C25,85 20,70 35,65 S45,40 65,35 S80,10 90,5"
-                                        fill="none"
-                                        stroke="#2ed573"
-                                        strokeWidth="4"
-                                        strokeLinecap="round"
-                                        filter="url(#glow)"
-                                    />
-                                    <circle cx="10" cy="90" r="2" fill="white" />
-                                    <circle cx="90" cy="5" r="2" fill="#2ed573" />
-                                </svg>
-                                <div className="map-watermark">Caelo Maps Engine</div>
-                            </div>
-
-                            <div className="summary-stats-grid">
-                                <div className="s-stat">
-                                    <span className="s-val">{summaryData.dist.toFixed(2)}</span>
-                                    <span className="s-lbl">Distance (km)</span>
-                                </div>
-                                <div className="s-stat">
-                                    <span className="s-val">{formatTime(summaryData.time)}</span>
-                                    <span className="s-lbl">Moving Time</span>
-                                </div>
-                                <div className="s-stat">
-                                    <span className="s-val">{summaryData.elev}m</span>
-                                    <span className="s-lbl">Elevation</span>
-                                </div>
-                                <div className="s-stat">
-                                    <span className="s-val">{(summaryData.dist / (summaryData.time / 3600)).toFixed(1)}</span>
-                                    <span className="s-lbl">Avg (km/h)</span>
+                                <div className="card-footer-quotes">
+                                    "The mountains are calling, and I must go."
                                 </div>
                             </div>
 
-                            <div className="card-footer-quotes">
-                                "The mountains are calling, and I must go."
+                            <div className="summary-actions">
+                                <button className="btn-share-social">
+                                    <span>📤</span> SHARE TO SOCMED
+                                </button>
+                                <button className="btn-save-gallery">
+                                    <span>💾</span> SAVE TO GALLERY
+                                </button>
+                                <button className="btn-summary-done" onClick={() => setShowSummary(false)}>
+                                    DONE
+                                </button>
                             </div>
-                        </div>
-
-                        <div className="summary-actions">
-                            <button className="btn-share-social">
-                                <span>📤</span> SHARE TO SOCMED
-                            </button>
-                            <button className="btn-save-gallery">
-                                <span>💾</span> SAVE TO GALLERY
-                            </button>
-                            <button className="btn-summary-done" onClick={() => setShowSummary(false)}>
-                                DONE
-                            </button>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* ACTIVITY SHEET OVERLAY */}
             <div className={`overlay ${showActivitySheet ? 'active' : ''}`} onClick={() => {
@@ -835,7 +874,7 @@ function App() {
                     <button key={m} onClick={() => setMode(m)} style={{ fontSize: 8 }}>{m[0].toUpperCase()}</button>
                 ))}
             </div>
-        </div>
+        </div >
     )
 }
 

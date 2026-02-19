@@ -372,8 +372,9 @@ body {
 
 /* RIDE RECORDING SCREEN */
 .recording-top {
+    margin-top: -30px;
+    /* Shifting up to use space */
     margin-bottom: 1.5rem;
-    /* Reduced from 3rem */
     text-align: center;
 }
 
@@ -458,6 +459,7 @@ body {
     font-weight: 600;
     letter-spacing: 0.05rem;
     backdrop-filter: blur(10px);
+    margin-top: 1.5rem;
 }
 
 .stop-btn {
@@ -807,14 +809,52 @@ body {
 }
 
 .sheet-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
     margin-bottom: 2rem;
-    text-align: center;
+    min-height: 48px;
+    padding: 0 1rem;
+}
+
+.back-btn {
+    position: absolute;
+    left: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: inherit;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    z-index: 2;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateX(-2px);
+}
+
+.back-btn:active {
+    transform: scale(0.9);
 }
 
 .sheet-title {
-    font-size: 1.3rem;
-    font-weight: 600;
-    letter-spacing: 0.02rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.02rem;
+    color: inherit;
+    text-align: center;
+    padding: 0 50px;
+    /* Prevent text from reaching the back button area */
 }
 
 .activity-grid {
@@ -1344,6 +1384,11 @@ body {
     color: #1a1a1a;
 }
 
+.mode-day .back-btn {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
 .mode-day .sheet-grabber,
 .mode-sunrise .sheet-grabber,
 .mode-sunset .sheet-grabber {
@@ -1522,6 +1567,33 @@ body {
     color: rgba(0, 0, 0, 0.3);
 }
 
+.member-label {
+    position: absolute;
+    background: rgba(30, 30, 30, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 6px 14px;
+    border-radius: 30px;
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 800;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    z-index: 15;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.blue-dot {
+    width: 10px;
+    height: 10px;
+    background: #00d2ff;
+    border-radius: 50%;
+    box-shadow: 0 0 12px #00d2ff;
+    border: 2px solid white;
+}
+
 .gpx-svg {
     width: 100%;
     height: 100%;
@@ -1561,8 +1633,8 @@ body {
 .nav-overlay-info {
     position: relative;
     z-index: 10;
-    margin-top: 20px;
-    /* Position at top */
+    margin-bottom: 12px;
+    /* Spacing between instruction and map */
     background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.15);
@@ -1573,8 +1645,30 @@ body {
     gap: 12px;
     width: 90%;
     max-width: 320px;
-    pointer-events: none;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    pointer-events: auto;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.nav-overlay-info.minimized {
+    width: 50px;
+    height: 50px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%;
+    gap: 0;
+}
+
+.nav-overlay-info.minimized .turn-icon {
+    font-size: 1.2rem;
+}
+
+.nav-overlay-info.minimized .btn-nav-toggle {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    scale: 0.7;
 }
 
 .mode-day .gpx-svg path:first-child {
@@ -1608,6 +1702,26 @@ body {
     margin-top: 2px;
 }
 
+.btn-nav-toggle {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    margin-left: auto;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-nav-toggle:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
 .mode-day .cockpit-toggle {
     background: rgba(0, 0, 0, 0.05);
     border-color: rgba(0, 0, 0, 0.1);
@@ -1637,15 +1751,14 @@ body {
     backdrop-filter: blur(25px);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 20px;
-    padding: 1rem;
-    margin-top: 20px;
-    margin-bottom: 60px;
-    /* Pushed higher for better ergonomics */
-    /* Stacked below CP Ticker */
+    padding: 0.8rem 1rem;
+    margin-top: auto;
+    /* Push to bottom of recording-center */
+    margin-bottom: 10px;
     z-index: 5;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
     box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
 }
 
@@ -1712,45 +1825,39 @@ body {
     text-transform: uppercase;
 }
 
-.elevation-visual-bars {
+.elevation-chart-wrapper {
     width: 100%;
-    height: 50px;
+    position: relative;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.climb-svg {
+    width: 100%;
+    height: 60px;
+    display: block;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
+}
+
+.climb-svg path {
+    filter: drop-shadow(0 0 5px rgba(255, 71, 87, 0.2));
+}
+
+.chart-labels {
     display: flex;
-    align-items: flex-end;
-    gap: 3px;
-    padding-bottom: 4px;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    justify-content: space-between;
+    padding: 6px 4px 0;
+    font-size: 0.55rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1rem;
+    opacity: 0.4;
+    color: white;
 }
 
-.elev-bar {
-    flex: 1;
-    border-radius: 3px 3px 0 0;
-    transition: all 0.3s ease;
-    opacity: 0.8;
-}
-
-.rider-climb-marker {
-    position: absolute;
-    top: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-top: 7px solid white;
-    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 1));
-    animation: markerBounce 0.8s infinite alternate;
-}
-
-@keyframes markerBounce {
-    from {
-        transform: translateX(-50%) translateY(0);
-    }
-
-    to {
-        transform: translateX(-50%) translateY(3px);
-    }
+.mode-day .chart-labels {
+    color: #1a1a1a;
+    opacity: 0.6;
 }
 
 /* STOP ACTION & VALIDATION OVERLAYS */
@@ -1970,6 +2077,56 @@ body {
 
 .mode-day .next-turn {
     color: #1a1a1a;
+}
+
+.live-group-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    padding: 1.2rem 1.5rem !important;
+}
+
+.live-dot {
+    width: 8px;
+    height: 8px;
+    background: #666;
+    border-radius: 50%;
+    margin-bottom: 2px;
+}
+
+.live-dot.pulsing {
+    background: #2ed573;
+    box-shadow: 0 0 10px rgba(46, 213, 115, 0.5);
+    animation: livePulse 1.5s infinite;
+}
+
+@keyframes livePulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.5);
+        opacity: 0.5;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.btn-toggle-group.active {
+    background: #2ed573 !important;
+    color: white !important;
+    border-color: #2ed573 !important;
+    box-shadow: 0 5px 15px rgba(46, 213, 115, 0.3);
+}
+
+.mode-day .live-group-card {
+    background: rgba(255, 255, 255, 0.5);
 }
 
 .section-mini-group {
